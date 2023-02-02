@@ -8,6 +8,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import com.example.cancellablefiledownload.ui.DownloadStatus
 import java.math.RoundingMode
 import java.text.DecimalFormat
 
@@ -47,14 +48,30 @@ class MainActivity : AppCompatActivity() {
                 tvProgress.setTextColor(Color.GREEN)
                 tvProgress.text = "${df.format(it / 1000000.0)}MB"
             }
-            else if (it == 0L)
-            {
-                tvProgress.setTextColor(Color.RED)
-                tvProgress.text = getString(R.string.mesg_download_cancelled)
-            } else if (it == -1L)
-            {
-                tvProgress.setTextColor(Color.BLUE)
-                tvProgress.text = getString(R.string.msg_download_complete)
+
+        }
+
+        viewModel.status.observe(this)
+        {
+            when (it) {
+                DownloadStatus.NOT_STARTED -> {
+                    tvProgress.setTextColor(Color.BLACK)
+                    tvProgress.text = getString(R.string.click_download)
+                }
+                DownloadStatus.IN_PROGRESS -> {
+                }
+                DownloadStatus.COMPLETE -> {
+                    tvProgress.setTextColor(Color.BLUE)
+                    tvProgress.text = getString(R.string.msg_download_complete)
+                }
+                DownloadStatus.CANCELLED -> {
+                    tvProgress.setTextColor(Color.RED)
+                    tvProgress.text = getString(R.string.mesg_download_cancelled)
+                }
+                DownloadStatus.FAILED -> {
+                    tvProgress.setTextColor(Color.RED)
+                    tvProgress.text = getString(R.string.mesg_download_cancelled)
+                }
             }
 
         }

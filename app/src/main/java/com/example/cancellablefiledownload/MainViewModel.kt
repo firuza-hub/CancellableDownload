@@ -7,6 +7,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.example.cancellablefiledownload.ui.DownloadStatus
 import kotlinx.coroutines.*
 import okhttp3.*
 import java.io.*
@@ -17,17 +18,23 @@ import java.util.*
 class MainViewModel(val app: Application) : AndroidViewModel(app) {
     var urlString = ""
 
+    private val _progress = MutableLiveData<Long>()
     val progress: LiveData<Long>
         get() = _progress
+
+    private val _status = MutableLiveData<DownloadStatus>(DownloadStatus.NOT_STARTED)
+    val status: LiveData<DownloadStatus>
+        get() = _status
 
     var job: Job? = null
     private val newFileName = UUID.randomUUID().toString().take(6)
 
-    private val _progress = MutableLiveData<Long>()
+
     private val pathExternal = app.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
 
     fun downloadFile(toast: (message: String) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
+            _status.postValue(DownloadStatus.IN_PROGRESS)
             val client = OkHttpClient();
             val request: Request
             try {
@@ -50,12 +57,12 @@ class MainViewModel(val app: Application) : AndroidViewModel(app) {
                     ".$ext"
                 }
                 val inputStream: InputStream = response.body!!.byteStream()
-
                 val input = BufferedInputStream(inputStream)
+
                 val file = File("${pathExternal}/${newFileName}.$ext")
                 val output: OutputStream = FileOutputStream(file)
 
-                job = launch {
+                job = launch() {
                     try {
                         val data = ByteArray(1024)
 
@@ -69,14 +76,20 @@ class MainViewModel(val app: Application) : AndroidViewModel(app) {
                         }
                         _progress.postValue(-1)
                         output.flush()
-                    } catch (ex: CancellationException) {
-                        file.delete()
-                        _progress.postValue(0)
-                    } catch (ex: Exception) {
+                        _status.postValue(DownloadStatus.COMPLETE)
+                    }
+                    catch (ex: CancellationException)
+                    {
+                        _status.postValue(DownloadStatus.CANCELLED)
+                    }
+                    catch (ex: Exception)
+                    {
+                        _status.postValue(DownloadStatus.FAILED)
                         file.delete()
                         _progress.postValue(0)
                         throw ex
-                    } finally {
+                    } finally
+                    {
                         output.close()
                         input.close()
                     }

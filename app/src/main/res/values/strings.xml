@@ -7,4 +7,5 @@
     <string name="download_progress">Download Progress</string>
     <string name="mesg_download_cancelled">DOWNLOAD CANCELLED</string>
     <string name="msg_download_complete">DOWNLOAD COMPLETE</string>
+    <string name="click_download">CLICK DOWNLOAD</string>
 </resources>
