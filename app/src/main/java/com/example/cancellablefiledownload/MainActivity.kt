@@ -14,7 +14,7 @@ import java.text.DecimalFormat
 class MainActivity : AppCompatActivity() {
 
     private val viewModel: MainViewModel by viewModels()
-    val df = DecimalFormat("#.###").apply { roundingMode = RoundingMode.DOWN }
+    private val df = DecimalFormat("#.###").apply { roundingMode = RoundingMode.DOWN }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -26,7 +26,7 @@ class MainActivity : AppCompatActivity() {
         val etUrl = findViewById<EditText>(R.id.etUrl)
 
         btnDownload.setOnClickListener {
-            if (etUrl.text.toString().isNullOrEmpty()) {
+            if (etUrl.text.toString().isEmpty()) {
                 Toast.makeText(this, "Please enter url", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
@@ -50,11 +50,11 @@ class MainActivity : AppCompatActivity() {
             else if (it == 0L)
             {
                 tvProgress.setTextColor(Color.RED)
-                tvProgress.text = "DOWNLOAD CANCELLED"
+                tvProgress.text = getString(R.string.mesg_download_cancelled)
             } else if (it == -1L)
             {
                 tvProgress.setTextColor(Color.BLUE)
-                tvProgress.text = "DOWNLOAD COMPLETE"
+                tvProgress.text = getString(R.string.msg_download_complete)
             }
 
         }

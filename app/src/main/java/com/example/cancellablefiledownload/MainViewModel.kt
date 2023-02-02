@@ -1,8 +1,8 @@
 package com.example.cancellablefiledownload
 
 import android.app.Application
+import android.os.Environment
 import android.webkit.MimeTypeMap
-import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -21,9 +21,10 @@ class MainViewModel(val app: Application) : AndroidViewModel(app) {
         get() = _progress
 
     var job: Job? = null
+    private val newFileName = UUID.randomUUID().toString().take(6)
 
     private val _progress = MutableLiveData<Long>()
-    private val path = "sdcard/Download"
+    private val pathExternal = app.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
 
     fun downloadFile(toast: (message: String) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -48,10 +49,10 @@ class MainViewModel(val app: Application) : AndroidViewModel(app) {
                 } else {
                     ".$ext"
                 }
-                val `is`: InputStream = response.body!!.byteStream()
+                val inputStream: InputStream = response.body!!.byteStream()
 
-                val input = BufferedInputStream(`is`)
-                val file = File("$path/${UUID.randomUUID().toString().take(6)}.$ext")
+                val input = BufferedInputStream(inputStream)
+                val file = File("${pathExternal}/${newFileName}.$ext")
                 val output: OutputStream = FileOutputStream(file)
 
                 job = launch {

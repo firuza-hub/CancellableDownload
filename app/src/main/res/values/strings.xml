@@ -5,4 +5,6 @@
     <string name="download_url">Download url</string>
     <string name="cancel">Cancel</string>
     <string name="download_progress">Download Progress</string>
+    <string name="mesg_download_cancelled">DOWNLOAD CANCELLED</string>
+    <string name="msg_download_complete">DOWNLOAD COMPLETE</string>
 </resources>
